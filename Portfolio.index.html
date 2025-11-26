@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정희우 포트폴리오 - UX Designer</title>
+    <!-- Tailwind CSS CDN 로드 --><script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    // 사용자 요청에 따른 다크 모드 및 새로운 Accent 색상 설정
+                    colors: {
+                        'dark-bg': '#121212', // 진한 어둠
+                        'dark-text': '#EAEAEA', // 밝은 색상
+                        // 포인트 색상을 인디고 계열로 변경 (Tailwind Indigo 400)
+                        'accent-indigo': '#818CF8', 
+                    },
+                    fontFamily: {
+                        // 가독성을 위한 고딕 계열 폰트 스택 (Pretendard, Noto Sans 대체)
+                        sans: ['Noto Sans KR', 'Pretendard', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', '"Noto Sans"', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"', '"Noto Color Emoji"'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.8s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: 0, transform: 'translateY(1rem)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 기본 스크롤 동작을 부드럽게 설정 */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* ------------------------------------------------ */
+        /* 사용자 요청: 네온 제거 및 인디고 단색 포인트 색상 적용 */
+        /* ------------------------------------------------ */
+
+        /* 단색 텍스트 포인트 색상 (인디고) */
+        .accent-color {
+            color: var(--tw-colors-accent-indigo);
+            text-shadow: none; 
+        }
+        
+        /* 단색 보더 포인트 색상 (인디고) */
+        .accent-border {
+            border-left: 4px solid var(--tw-colors-accent-indigo);
+            box-shadow: none; 
+        }
+        
+        /* 헤더 배경 그라데이션 (점 패턴 제거, 인디고 중심의 은은한 원형 그라데이션만 유지) */
+        .header-gradient-bg {
+            /* 인디고 중심으로 원형 그라데이션 재설정 (Indigo 400/Violet 400 톤 사용) */
+            background: radial-gradient(circle at center, rgba(129, 140, 248, 0.2) 0%, transparent 60%, rgba(167, 139, 250, 0.1) 100%);
+            /* 조그만 점 배경 이미지 제거 (요청 반영) */
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        /* 메인 콘텐츠는 헤더가 fixed가 아니므로 padding-top을 제거합니다. */
+        main {
+            padding-top: 0;
+        }
+
+        /* Section Title이 고정된 내비게이션 바 아래에 정확히 고정되도록 설정 */
+        .section-title-sticky {
+            top: 4.5rem; /* 고정 내비게이션 바 높이 (py-3 이므로 대략 4.5rem)에 맞춰 조정 */
+            z-index: 40; /* 내비게이션 바(z-50)보다 낮게 설정 */
+        }
+        /* 애니메이션 초기 상태 (숨김) */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(1rem);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        /* Intersection Observer가 감지했을 때의 상태 */
+        .animate-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 모바일 환경: Sticky top 값 조정 */
+        @media (max-width: 640px) {
+            main {
+                padding-top: 0;
+            }
+            .section-title-sticky {
+                top: 4.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-dark-bg text-dark-text antialiased">
+
+    <!-- 1. 고정된 내비게이션 바 (목록만 고정) --><div id="sticky-nav" class="fixed top-0 w-full bg-dark-bg/95 backdrop-blur-sm shadow-lg z-50 border-b border-gray-700">
+        <div class="container mx-auto px-4 sm:px-6 py-3 flex justify-end">
+            <nav>
+                <ul class="flex space-x-6 text-base sm:text-lg">
+                    <!-- 네비게이션 링크에 단색 강조 적용 -->
+                    <li class="text-white hover:accent-color transition duration-300 p-2 rounded-lg"><a href="#career" class="nav-link font-semibold tracking-wider">01.CAREER</a></li>
+                    <li class="text-white hover:accent-color transition duration-300 p-2 rounded-lg"><a href="#project" class="nav-link font-semibold tracking-wider">02.PROJECT</a></li>
+                    <li class="text-white hover:accent-color transition duration-300 p-2 rounded-lg"><a href="#experience" class="nav-link font-semibold tracking-wider">03.EXPERIENCE</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 2. Header/Profile 섹션: 이제 스크롤과 함께 움직입니다. (고정 해제) -->
+    <header id="header" class="w-full header-gradient-bg py-8 md:py-16 pt-24"> <!-- 고정 내비게이션 아래로 배치하기 위해 pt-24 (6rem) 추가 -->
+        <div class="container mx-auto px-4 sm:px-6 flex flex-col items-center relative">
+            
+            <!-- Name (Center, Very Large) and Title -->
+            <div class="text-center mt-12 mb-8 md:mt-20 md:mb-12 animate-on-scroll">
+                <!-- H1은 흰색 유지 -->
+                <h1 class="text-5xl sm:text-7xl md:text-8xl font-extrabold tracking-tight text-white leading-tight">Heewoo Jeong</h1>
+                <!-- Title에 단색 강조 적용 -->
+                <p class="text-xl sm:text-2xl md:text-3xl font-medium uppercase tracking-widest mt-3 accent-color">UX Designer</p>
+            </div>
+            
+            <!-- Contact Info (Center, Below Name) -->
+            <div class="flex flex-col sm:flex-row items-center justify-center text-sm sm:text-base space-y-1 sm:space-y-0 sm:space-x-6 text-gray-300 animate-on-scroll" style="transition-delay: 0.1s;">
+                <p class="font-normal">010-7917-9729</p>
+                <!-- 이메일에도 accent-color 적용 및 hover 효과 유지 -->
+                <p><a href="mailto:gmldn9729@gmail.com" class="hover:accent-color transition duration-300 font-normal">gmldn9729@gmail.com</a></p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6">
+
+        <!-- 3. Section 1: 01.CAREER HISTORY (경력 연혁) -->
+        <section id="career" class="py-16 md:py-24">
+            <!-- 섹션 타이틀에 단색 강조 적용 -->
+            <h2 class="section-title-sticky sticky bg-dark-bg pt-8 pb-4 text-3xl font-extrabold tracking-wide border-b border-gray-700 accent-color text-left">01.CAREER HISTORY</h2>
+            <div class="mt-8">
+                <!-- 경력 연혁 목록 (dl/dt/dd 사용) -->
+                <dl class="space-y-12 text-left">
+                    <!-- 경력 1 (개별 애니메이션 적용) -->
+                    <div class="flex flex-col md:flex-row md:space-x-8 animate-on-scroll">
+                        <dt class="w-full md:w-1/4 flex-shrink-0 text-xl font-medium text-gray-400 mb-2 md:mb-0">
+                            2025.04 - PRESENT
+                        </dt>
+                        <dd class="w-full md:w-3/4">
+                            <h3 class="text-2xl font-bold text-white mb-1">Peaknic.</h3>
+                            <!-- 직함에 단색 강조 적용, 볼륨 조절: font-medium -->
+                            <p class="text-lg mb-4 accent-color font-medium">UX Planner</p>
+                            <ul class="list-disc list-inside space-y-2 text-gray-300 ml-4 text-base font-normal">
+                                <li>리서치 기반 UX Strategy 구축 업무.</li>
+                                <li>고객사 고유 기술을 기반한 리서치 및 시나리오 화면 초안 작업 주도.</li>
+                                <li>금융권 앱 UX 운용업무.</li>
+                            </ul>
+                        </dd>
+                    </div>
+
+                    <!-- 경력 2 (개별 애니메이션 적용) -->
+                    <div class="flex flex-col md:flex-row md:space-x-8 animate-on-scroll" style="transition-delay: 0.1s;">
+                        <dt class="w-full md:w-1/4 flex-shrink-0 text-xl font-medium text-gray-400 mb-2 md:mb-0">
+                            2021.07 - 2022.03
+                        </dt>
+                        <dd class="w-full md:w-3/4">
+                            <h3 class="text-2xl font-bold text-white mb-1">Turing AI Cultur (Berlin).</h3>
+                            <!-- 직함에 단색 강조 적용, 볼륨 조절: font-medium -->
+                            <p class="text-lg mb-4 accent-color font-medium">AI Assistant</p>
+                            <ul class="list-disc list-inside space-y-2 text-gray-300 ml-4 text-base font-normal">
+                                <li>AI 프로그램 사용 업무.</li>
+                                <li>프로그램 내 이슈 해결.</li>
+                                <li>태그 분류 업무.</li>
+                            </ul>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </section>
+
+        <!-- 4. Section 2: 02.PROJECT HISTORY (프로젝트 내역) -->
+        <section id="project" class="py-16 md:py-24">
+            <!-- 섹션 타이틀에 단색 강조 적용 -->
+            <h2 class="section-title-sticky sticky bg-dark-bg pt-8 pb-4 text-3xl font-extrabold tracking-wide border-b border-gray-700 accent-color text-left">02.PROJECT HISTORY</h2>
+            <div class="mt-8">
+                <!-- 프로젝트 내역 목록 (ul/li 사용) -->
+                <ul class="space-y-16 text-left">
+                    <!-- 프로젝트 1: AI 기반 프로젝트 (개별 애니메이션 적용) -->
+                    <li class="accent-border pl-6 py-2 rounded-r-lg bg-gray-800/20 p-4 animate-on-scroll">
+                        <h3 class="text-2xl font-bold text-white">Smart Construction Multi-Device UX Strategy</h3>
+                        <!-- 해시태그에 단색 강조 적용, 볼륨 조절: text-base font-medium -->
+                        <p class="text-base mt-1 mb-3 accent-color font-medium">#UXStrategy #NDevice #ServiceBlueprint #InformationArchitecture</p>
+                        <dl class="space-y-2 text-gray-300 text-base font-normal">
+                            <dt class="font-semibold text-gray-400">주요 역할 및 기여:</dt>
+                            <dd class="ml-4">
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>사용자 맥락 분석을 통해 UX 방향성 설계.</li>
+                                    <li>구축 프로젝트 요구사항에 맞춰 업무 빈도 중심 IA 및 핵심 플로우 구조 정의.</li>
+                                    <li>프로젝트 초기 UX 전략이 이후 UI 설계·개발 기준으로 활용되도록 UX 원칙·가이드 문서화.</li>
+                                </ul>
+                            </dd>
+                            <dt class="font-semibold text-gray-400 mt-3">기술 스택:</dt>
+                            <dd class="ml-4">Service Blueprint, User Scenario, IA, Wireflow, Contextual Inquiry</dd>
+                        </dl>
+                    </li>
+                    
+                    <!-- 프로젝트 2: UX/UI 프로젝트 (개별 애니메이션 적용) -->
+                    <li class="accent-border pl-6 py-2 rounded-r-lg bg-gray-800/20 p-4 animate-on-scroll" style="transition-delay: 0.1s;">
+                        <h3 class="text-2xl font-bold text-white">Global Electronics Vehicle CID UX Design</h3>
+                        <!-- 해시태그 볼륨 조절: text-base font-medium, 색상 유지 -->
+                        <p class="text-base text-gray-500 mt-1 mb-3 font-medium">#AutomotiveUX #HMI #InteractionDesign #UXGuideline</p>
+                        <dl class="space-y-2 text-gray-300 text-base font-normal">
+                            <dt class="font-semibold text-gray-400">주요 역할 및 기여:</dt>
+                            <dd class="ml-4">
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>차량 인포테인먼트(CID)의 핵심 기능 구조·동작 모델 설계 참여.</li>
+                                    <li>다양한 운전 상황(주행/정차)을 고려해 안전·가독성·인지부하 최소화 UX 원칙 정립.</li>
+                                    <li>내부 보안 정책상 시각자료 비공개 조건에서,
+기능 구조와 화면 흐름을 추상화한 Interaction Map으로 재구성하여 기획 의도를 설명.</li>
+                                </ul>
+                            </dd>
+                            <dt class="font-semibold text-gray-400 mt-3">기술 스택:</dt>
+                            <dd class="ml-4">HMI Guideline, Task Flow, Interaction Model, Wireframe Logic</dd>
+                        </dl>
+                    </li>
+                    
+                    <!-- 프로젝트 3: UX/UI 프로젝트 (개별 애니메이션 적용) -->
+                    <li class="accent-border pl-6 py-2 rounded-r-lg bg-gray-800/20 p-4 animate-on-scroll" style="transition-delay: 0.2s;">
+                        <h3 class="text-2xl font-bold text-white">Tier-1 Financial Institution UX Operation & Improvement</h3>
+                        <!-- 해시태그 볼륨 조절: text-base font-medium, 색상 유지 -->
+                        <p class="text-base text-gray-500 mt-1 mb-3 font-medium">#FintechUX #Operation #ServiceImprovement #CXI</p>
+                        <dl class="space-y-2 text-gray-300 text-base font-normal">
+                            <dt class="font-semibold text-gray-400">주요 역할 및 기여:</dt>
+                            <dd class="ml-4">
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>1금융권 채널의 고도화 및 CX 개선을 위해 월간/주간 운영이슈 분석 → UX 개선안 제안 프로세스 수행..</li>
+                                    <li>고객 문의/데이터 기반으로 사용성 장애 요인 식별 → 개선 플로우 설계 중심 역할.</li>
+                                    <li>구축팀/개발팀과의 협업을 통한 요구사항 정의·기획서 작성·QA 지원 등
+실제 금융환경에서의 운용 기반 UX 개선 경험 확보.</li>
+                                </ul>
+                            </dd>
+                            <dt class="font-semibold text-gray-400 mt-3">기술 스택:</dt>
+                            <dd class="ml-4">HMI Guideline, Task Flow, Interaction Model, Wireframe Logic</dd>
+                        </dl>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 5. Section 3: 03.EXPERIENCE (경험/해외 경험) -->
+        <section id="experience" class="py-16 md:py-24">
+            <!-- 섹션 타이틀에 단색 강조 적용 -->
+            <h2 class="section-title-sticky sticky bg-dark-bg pt-8 pb-4 text-3xl font-extrabold tracking-wide border-b border-gray-700 accent-color text-left">03.EXPERIENCE</h2>
+            <div class="mt-8">
+                <!-- 경험/해외 경험 목록 (dl/dt/dd 사용) -->
+                <dl class="space-y-12 text-left">
+                    <!-- 경험 1 (개별 애니메이션 적용) -->
+                    <div class="flex flex-col md:flex-row md:space-x-8 animate-on-scroll">
+                        <dt class="w-full md:w-1/4 flex-shrink-0 text-xl font-medium text-gray-400 mb-2 md:mb-0">
+                            2021.06 - 2022.03
+                        </dt>
+                        <dd class="w-full md:w-3/4">
+                            <h3 class="text-2xl font-bold text-white">Berlin, Germany</h3>
+                            <!-- 직함에 단색 강조 적용, 볼륨 조절: font-medium -->
+                            <p class="text-lg mb-4 accent-color font-medium">Study</p>
+                            <ul class="list-disc list-inside space-y-2 text-gray-300 ml-4 text-base font-normal">
+                            </ul>
+                        </dd>
+                    </div>
+
+                    <!-- 경험 2 (개별 애니메이션 적용) -->
+                    <div class="flex flex-col md:flex-row md:space-x-8 animate-on-scroll" style="transition-delay: 0.1s;">
+                        <dt class="w-full md:w-1/4 flex-shrink-0 text-xl font-medium text-gray-400 mb-2 md:mb-0">
+                            2014.01 - 2014.02
+                        </dt>
+                        <dd class="w-full md:w-3/4">
+                            <h3 class="text-2xl font-bold text-white">Auckland, New Zealand</h3>
+                            <!-- 직함에 단색 강조 적용, 볼륨 조절: font-medium -->
+                            <p class="text-lg mb-4 accent-color font-medium">Exchange Student</p>
+                            <ul class="list-disc list-inside space-y-2 text-gray-300 ml-4 text-base font-normal">
+                            </ul>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 6. Footer: Copyright 정보 -->
+    <footer class="bg-gray-900 border-t border-gray-700 mt-16 py-6">
+        <div class="container mx-auto px-4 text-center text-sm text-gray-500">
+            <p>&copy; 2024 Jeong Hee-woo Portfolio. All Rights Reserved. Built with Semantic HTML5 & Tailwind CSS.</p>
+        </div>
+    </footer>
+
+    <script>
+        // JavaScript for Smooth Scroll, Sticky Header Behavior, and Fade-in Animations
+
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // ==========================================================
+            // 1. Navigation Smooth Scroll (메뉴 클릭 시 부드러운 스크롤)
+            // ==========================================================
+            document.querySelectorAll('.nav-link').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        // 이제 고정된 것은 #sticky-nav (내비게이션 바) 뿐이므로, 해당 높이를 기준으로 스크롤 위치 조정
+                        const stickyNavHeight = document.getElementById('sticky-nav').offsetHeight;
+                        
+                        // Sticky Title이 Nav 아래에 고정되므로, Nav 높이 + 추가 여백 만큼 보정
+                        const targetPosition = targetElement.offsetTop - stickyNavHeight - 10; 
+
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+
+            // ==========================================================
+            // 2. Intersection Observer for Fade-in Animation (페이드 인 애니메이션 구현)
+            // ==========================================================
+            // 개별 항목에 애니메이션이 적용되도록 쿼리 셀렉터를 조정했습니다.
+            const sectionsToAnimate = document.querySelectorAll('.animate-on-scroll');
+            
+            const observerOptions = {
+                root: null, // 뷰포트를 기준으로 관찰
+                rootMargin: '0px',
+                threshold: 0.1 // 요소의 10%가 보이면 실행
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // 섹션이 뷰포트에 들어왔을 때 'is-visible' 클래스 추가하여 애니메이션 실행
+                        entry.target.classList.add('is-visible');
+                        // 한번 애니메이션이 실행된 후에는 관찰 중지
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            sectionsToAnimate.forEach(section => {
+                observer.observe(section);
+            });
+            
+        });
+    </script>
+</body>
+
+</html>
+
